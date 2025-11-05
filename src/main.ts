@@ -10,10 +10,13 @@ async function bootstrap() {
     logger: ["log", "error", "warn", "debug", "verbose"],
   });
 
-  // The app doesn't need to listen on a port since it's just watching messages
-  await app.init();
+  // Enable CORS if needed
+  app.enableCors();
 
-  console.log("Telegram Translator Service is running...");
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+
+  console.log(`Telegram Translator Service is running on port ${port}`);
   console.log("Watching for new messages in the source channel...");
 }
 
