@@ -19,7 +19,10 @@ export class OpenAIService {
   /**
    * Translate Russian slang / casual text into natural, polite South Korean.
    */
-  async translateToKorean(text: string): Promise<string> {
+  async translateToKorean(
+    text: string,
+    customPrompt?: string
+  ): Promise<string> {
     try {
       if (!text?.trim()) return "";
 
@@ -27,13 +30,9 @@ export class OpenAIService {
         `Translating text (first 50 chars): ${text.substring(0, 50)}...`
       );
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
-        temperature: 0.3,
-        messages: [
-          {
-            role: "system",
-            content: `
+      const systemPrompt =
+        customPrompt ||
+        `
             You are a professional translator fluent in Russian and Korean.
 Translate the given Russian text into natural, smooth, and fluent South Korean (Korean language).
 The text may include slang, profanity, or casual speech.
@@ -66,8 +65,16 @@ Guidelines:
 ракетка = very fast-moving chart
 
 * Avoid using literary or overly formal terms — make it sound like something Korean traders would actually say.
-* If the post mentions a time without a timezone, assume it’s Moscow time (UTC+3) and explicitly indicate that in the translation.
-            `,
+* If the post mentions a time without a timezone, assume it's Moscow time (UTC+3) and explicitly indicate that in the translation.
+            `;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        temperature: 0.3,
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
           },
           {
             role: "user",
